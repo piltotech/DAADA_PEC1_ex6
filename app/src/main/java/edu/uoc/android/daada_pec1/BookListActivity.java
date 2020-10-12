@@ -170,16 +170,10 @@ public class BookListActivity extends AppCompatActivity {
             MultiTransformation<Bitmap> multiTransformation = new MultiTransformation<>(new GrayscaleTransformation(), new BlurTransformation(25));
 
             Glide.with(holder.mView.getContext())
-                    .asBitmap()
                     .load(id)
                     .apply(RequestOptions.bitmapTransform(multiTransformation))
-                    //.apply(RequestOptions.bitmapTransform( new GrayscaleTransformation()))
-                    //.apply(RequestOptions.bitmapTransform( new BlurTransformation(25)))
-                    .apply(RequestOptions.skipMemoryCacheOf(true))
-                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
+                    .placeholder(id)
                     .into(holder.mCoverView);
-
-            holder.mCoverView.setImageResource(id);
 
 
             /*Glide.with(holder.mView.getContext())
