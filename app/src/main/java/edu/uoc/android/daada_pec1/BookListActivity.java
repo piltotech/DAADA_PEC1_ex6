@@ -1,12 +1,15 @@
 package edu.uoc.android.daada_pec1;
 
-import androidx.annotation.NonNull;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,24 +18,31 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
+
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.MultiTransformation;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
+
 import java.util.HashMap;
 import java.util.List;
 
+import jp.wasabeef.glide.transformations.BlurTransformation;
+import jp.wasabeef.glide.transformations.GrayscaleTransformation;
 import modelo.BookAuthorComparator;
 import modelo.BookItem;
 import modelo.BookModel;
 import modelo.BookTitleComparator;
+
 
 
 public class BookListActivity extends AppCompatActivity {
@@ -60,6 +70,11 @@ public class BookListActivity extends AppCompatActivity {
         assert recyclerView != null;
 
         recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, BookModel.ITEMS, tabletMode));
+
+        //RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this, 2);
+        RecyclerView.LayoutManager mLayoutManager = new StaggeredGridLayoutManager(2, 1);
+        recyclerView.setLayoutManager(mLayoutManager);
+
 
     }
 
@@ -127,18 +142,19 @@ public class BookListActivity extends AppCompatActivity {
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = null;
-            if (viewType == EVEN) {
+            /*if (viewType == EVEN) {
                 view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.book_list_content_even, parent, false);
             }
             else{
                 view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.book_list_content_odd, parent, false);
-            }
+            }*/
+            view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.book_list_content_cover, parent, false);
 
             return new ViewHolder(view);
         }
-
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
@@ -147,6 +163,40 @@ public class BookListActivity extends AppCompatActivity {
 
             holder.mTitleView.setText(mValues.get(position).getTítulo());
             holder.mAuthorView.setText(mValues.get(position).getAutor());
+
+            String name = mValues.get(position).getportadaURL();
+            int id = getResources().getIdentifier(name, "drawable", getPackageName());
+
+            MultiTransformation<Bitmap> multiTransformation = new MultiTransformation<>(new GrayscaleTransformation(), new BlurTransformation(25));
+
+            Glide.with(holder.mView.getContext())
+                    .asBitmap()
+                    .load(id)
+                    .apply(RequestOptions.bitmapTransform(multiTransformation))
+                    //.apply(RequestOptions.bitmapTransform( new GrayscaleTransformation()))
+                    //.apply(RequestOptions.bitmapTransform( new BlurTransformation(25)))
+                    .apply(RequestOptions.skipMemoryCacheOf(true))
+                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
+                    .into(holder.mCoverView);
+
+            holder.mCoverView.setImageResource(id);
+
+
+            /*Glide.with(holder.mView.getContext())
+                    .asBitmap()
+                    .load(id)
+                    //.apply(RequestOptions.bitmapTransform(multiTransformation))
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(new CustomTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            holder.mCoverView.setImageBitmap(resource);
+                            holder.mCoverView.buildDrawingCache();
+                        }
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) { }
+
+                    });*/
 
             holder.itemView.setTag(position+1);
 
@@ -180,6 +230,7 @@ public class BookListActivity extends AppCompatActivity {
             BookItem mitema;
             final TextView mTitleView;
             final TextView mAuthorView;
+            final ImageView mCoverView;
             View mView;
 
             ViewHolder(View view) {
@@ -187,6 +238,8 @@ public class BookListActivity extends AppCompatActivity {
                 mView = view;
                 mTitleView = (TextView) view.findViewById(R.id.id_book_name);
                 mAuthorView = (TextView) view.findViewById(R.id.id_author_name);
+                mCoverView = (ImageView) view.findViewById(R.id.list_book_cover);
+
             }
         }
 

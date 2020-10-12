@@ -8,5 +8,12 @@
     android:layout_height="match_parent"
     android:background="#F0F0F0"
     app:layoutManager="LinearLayoutManager"
-    tools:context=".BookListActivity" />
+    tools:context=".BookListActivity"
+    android:fadingEdge="vertical"
+    android:requiresFadingEdge="vertical"
+    android:fadingEdgeLength="50dp"
+    >
+
+
+</androidx.recyclerview.widget.RecyclerView>
 
